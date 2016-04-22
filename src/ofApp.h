@@ -1,12 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxOpenCv.h"
-#include "ofxKinect.h"
-
-#define NORMAL_MODE 0
-#define CALIBRATION_MODE 1
-#define CLOUD_MODE 2
+#include "KinectCapture.h"
 
 class ofApp : public ofBaseApp{
 
@@ -25,34 +20,6 @@ class ofApp : public ofBaseApp{
 		void mouseExited(int x, int y);
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
     
-    void drawPointCloud();
-
-    
-    
-    ofxKinect kinect;
-    
-    ofxCvColorImage colorImg;
-    
-    ofxCvGrayscaleImage grayImage; // grayscale depth image
-    ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
-    ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
-    
-    ofxCvContourFinder contourFinder;
-    
-    bool bThreshWithOpenCV;
-    bool bDrawPointCloud;
-    
-    int nearThreshold;
-    int farThreshold;
-    
-    int angle;
-    
-    int mode;
-    
-    // used for viewing the point cloud
-    ofEasyCam easyCam;
-
-		
+        KinectCapture kinectCapture;
 };
