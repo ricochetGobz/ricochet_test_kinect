@@ -50,6 +50,9 @@ void ofApp::update(){
     
     kinect.update();
     
+    //<< "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl;
+
+    
     // there is a new frame and we are connected
     if(kinect.isFrameNew()) {
         
@@ -93,47 +96,56 @@ void ofApp::update(){
 void ofApp::draw(){
     ofSetColor(255, 255, 255);
     
-    if(bDrawPointCloud) {
-        easyCam.begin();
-        drawPointCloud();
-        easyCam.end();
-    } else {
+    // INSCTUCTION
+    stringstream reportStream;
+    
+    if(mode == NORMAL_MODE) {
+        
+        // TODO respecter l'omotécie
+        kinect.draw(2, 2, ofGetWidth() - 4, ofGetHeight() - 4);
+        
+        // TODO afficher les cubes capturés
+        
+        reportStream << "NORMAL MODE" << endl
+        << "press (m) :: switch between modes" << endl << endl;
+
+    } else if (mode == CALIBRATION_MODE){
         // draw from the live kinect
         kinect.drawDepth(10, 10, 400, 300);
         kinect.draw(420, 10, 400, 300);
         
         grayImage.draw(10, 320, 400, 300);
         contourFinder.draw(10, 320, 400, 300);
+        
+        reportStream << "CALIBRATION MODE" << endl
+        << "press (m) :: switch between modes" << endl
+        << "press (spacebar) :: using opencv threshold = " << bThreshWithOpenCV << endl
+        << "press (w) :: toggle death near value = " << kinect.isDepthNearValueWhite() << endl
+        << "press (+ -) :: set near threshold = " << nearThreshold << endl
+        << "press (< >) :: set far threshold = " << farThreshold << endl;
+        if(kinect.hasCamTiltControl()) {
+            reportStream << "press (UP DOWN) :: change the tilt angle = " << angle << " degrees" << endl << endl;
+        }
+        
+        reportStream << "num blobs found = " << contourFinder.nBlobs << ", fps = " << ofGetFrameRate() << endl;
+        
+        
+    } else if (mode == CLOUD_MODE) {
+        reportStream << "CLOUD MODE" << endl
+        << "press (m) :: switch between modes" << endl << endl
+        << "rotate the point cloud with the mouse" << endl;
+        
+        easyCam.begin();
+        drawPointCloud();
+        easyCam.end();
     }
-    
-    // draw instructions
-    ofSetColor(255, 255, 255);
-    stringstream reportStream;
-    
-    if(kinect.hasAccelControl()) {
-        reportStream << "accel is: " << ofToString(kinect.getMksAccel().x, 2) << " / "
-        << ofToString(kinect.getMksAccel().y, 2) << " / "
-        << ofToString(kinect.getMksAccel().z, 2) << endl;
-    } else {
-        reportStream << "Note: this is a newer Xbox Kinect or Kinect For Windows device," << endl
-        << "motor / led / accel controls are not currently supported" << endl << endl;
-    }
-    
-    reportStream << "press p to switch between images and point cloud, rotate the point cloud with the mouse" << endl
-    << "using opencv threshold = " << bThreshWithOpenCV <<" (press spacebar)" << endl
-    << "set near threshold " << nearThreshold << " (press: + -)" << endl
-    << "set far threshold " << farThreshold << " (press: < >) num blobs found " << contourFinder.nBlobs
-    << ", fps: " << ofGetFrameRate() << endl
-    << "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl;
-    
-    if(kinect.hasCamTiltControl()) {
-        reportStream << "press UP and DOWN to change the tilt angle: " << angle << " degrees" << endl
-        << "press 1-5 & 0 to change the led mode" << endl;
-    }
-    
     ofDrawBitmapString(reportStream.str(), 20, 652);
     
-
+    // COMMUNICATION INFORMATION
+    stringstream reportCommunicationStream;
+    string kinectConnected = (kinect.isConnected())?"ON":"OFF - press (o) :: try to connect the kinect.";
+    reportCommunicationStream << "Kinect: " << kinectConnected << endl;
+    ofDrawBitmapString(reportCommunicationStream.str(), 10, 20);
 }
 
 void ofApp::drawPointCloud() {
@@ -165,88 +177,65 @@ void ofApp::drawPointCloud() {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     switch (key) {
-        case ' ':
-            bThreshWithOpenCV = !bThreshWithOpenCV;
+        case'm':
+            mode++;
+            if(mode == 3){
+                mode = 0;
+            }
             break;
-            
-        case'p':
-            bDrawPointCloud = !bDrawPointCloud;
-            break;
-            
-        case '>':
-        case '.':
-            farThreshold ++;
-            if (farThreshold > 255) farThreshold = 255;
-            break;
-            
-        case '<':
-        case ',':
-            farThreshold --;
-            if (farThreshold < 0) farThreshold = 0;
-            break;
-            
-        case '+':
-        case '=':
-            nearThreshold ++;
-            if (nearThreshold > 255) nearThreshold = 255;
-            break;
-            
-        case '-':
-            nearThreshold --;
-            if (nearThreshold < 0) nearThreshold = 0;
-            break;
-            
-        case 'w':
-            kinect.enableDepthNearValueWhite(!kinect.isDepthNearValueWhite());
-            break;
-            
         case 'o':
             kinect.setCameraTiltAngle(angle); // go back to prev tilt
             kinect.open();
             break;
-            
-        case 'c':
-            kinect.setCameraTiltAngle(0); // zero the tilt
-            kinect.close();
-            break;
-            
-        case '1':
-            kinect.setLed(ofxKinect::LED_GREEN);
-            break;
-            
-        case '2':
-            kinect.setLed(ofxKinect::LED_YELLOW);
-            break;
-            
-        case '3':
-            kinect.setLed(ofxKinect::LED_RED);
-            break;
-            
-        case '4':
-            kinect.setLed(ofxKinect::LED_BLINK_GREEN);
-            break;
-            
-        case '5':
-            kinect.setLed(ofxKinect::LED_BLINK_YELLOW_RED);
-            break;
-            
-        case '0':
-            kinect.setLed(ofxKinect::LED_OFF);
-            break;
-            
-        case OF_KEY_UP:
-            angle++;
-            if(angle>30) angle=30;
-            kinect.setCameraTiltAngle(angle);
-            break;
-            
-        case OF_KEY_DOWN:
-            angle--;
-            if(angle<-30) angle=-30;
-            kinect.setCameraTiltAngle(angle);
+        default:
+            if(mode == CALIBRATION_MODE){
+                switch (key) {
+                    case ' ':
+                        bThreshWithOpenCV = !bThreshWithOpenCV;
+                        break;
+                    case '>':
+                    case '.':
+                        farThreshold ++;
+                        if (farThreshold > 255) farThreshold = 255;
+                        break;
+                        
+                    case '<':
+                    case ',':
+                        farThreshold --;
+                        if (farThreshold < 0) farThreshold = 0;
+                        break;
+                        
+                    case '+':
+                    case '=':
+                        nearThreshold ++;
+                        if (nearThreshold > 255) nearThreshold = 255;
+                        break;
+                        
+                    case '-':
+                        nearThreshold --;
+                        if (nearThreshold < 0) nearThreshold = 0;
+                        break;
+                        
+                    case 'w':
+                        kinect.enableDepthNearValueWhite(!kinect.isDepthNearValueWhite());
+                        break;
+                        
+                    case OF_KEY_UP:
+                        angle++;
+                        if(angle>30) angle=30;
+                        kinect.setCameraTiltAngle(angle);
+                        break;
+                        
+                    case OF_KEY_DOWN:
+                        angle--;
+                        if(angle<-30) angle=-30;
+                        kinect.setCameraTiltAngle(angle);
+                        break;
+                }
+                
+            }
             break;
     }
-
 }
 
 //--------------------------------------------------------------

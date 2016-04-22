@@ -4,6 +4,10 @@
 #include "ofxOpenCv.h"
 #include "ofxKinect.h"
 
+#define NORMAL_MODE 0
+#define CALIBRATION_MODE 1
+#define CLOUD_MODE 2
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -44,6 +48,8 @@ class ofApp : public ofBaseApp{
     int farThreshold;
     
     int angle;
+    
+    int mode;
     
     // used for viewing the point cloud
     ofEasyCam easyCam;
