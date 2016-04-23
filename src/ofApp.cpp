@@ -4,7 +4,9 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    ofSetFrameRate(60);
     ofSetLogLevel(OF_LOG_VERBOSE);
+    kinectCapture.init();
 }
 
 //--------------------------------------------------------------

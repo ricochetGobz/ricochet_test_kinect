@@ -1,6 +1,6 @@
 //
 //  KinectCapture.h
-//  V 0.1
+//  V 0.1.2
 //  ricochet_test_kinect
 //
 //  Created by Boulay Jérémie on 15/04/2016.
@@ -18,17 +18,18 @@
 #define CLOUD_MODE 2
 
 class KinectCapture {
- 
+    
 public:
     // Constructor
     KinectCapture();
     
+    void init();
     void update();
     void draw();
     void onKeyPressed(int key);
     bool kinectIsConnected();
     
-
+    
     
 private:
     
@@ -55,7 +56,7 @@ private:
     
     // used for viewing the point cloud
     ofEasyCam easyCam;
-
+    
 };
 
 #endif /* KinectCapture_h */
