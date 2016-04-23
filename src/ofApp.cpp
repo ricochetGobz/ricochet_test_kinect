@@ -17,7 +17,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    
+    ofSetColor(255, 255, 255);
     kinectCapture.draw();
         
     // COMMUNICATION INFORMATION
